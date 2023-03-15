@@ -1,0 +1,153 @@
+---
+title: "DATA363 Project"
+output: html_document
+date: "2023-03-12"
+---
+
+Import data files
+```{r}
+install.packages('dplyr')
+library(dplyr)
+
+AveIncome <- read.csv("DATA363 Project - Income.csv", header = TRUE)
+#Imports Average Income Data set
+
+AveTuition <-read.csv("DATA363 Project - College.csv", header = TRUE)
+#Imports Average State Tuition Data set
+```
+
+Filter out unneeded college data
+```{r}
+AveTuition2018 <- filter(AveTuition, Year %in% c("2018") & Length %in% c("4-year"))
+#Filters Average Tuition for the year 2018 and only 4-year long programs
+```
+
+Filter out unneeded income data
+```{r}
+AveIncomeState <- AveIncome[4, ] 
+#Splits of row 4 containing column names for state and year
+
+AveIncomeState2 <- AveIncome[7:57, ]
+ #Splits dataset into 50 states and their average incomes
+
+AveIncomeStateTrue <- rbind(AveIncomeState, AveIncomeState2)
+#combines row 4 with row 7:57
+
+NewAveIncome <- AveIncomeStateTrue[2:52, ] 
+#Creates a new dataset
+
+colnames(NewAveIncome) <- AveIncomeStateTrue[1, ] 
+#Titles new dataset with row 4 of AveIncome
+
+AveIncome2018 <- subset(NewAveIncome, select = c("State", "2018")) #Creates a dataset of average state income for the year 2018
+
+rownames(AveIncome2018) = seq(length=nrow(AveIncome2018))
+#Renumbers rows properly
+
+AveIncome2018NoWyoming <- AveIncome2018[-51,]
+#Removes Wyoming to compare against private college costs
+
+AveIncome2018NoDC <- AveIncome2018[-9,]
+#Removes DC to compare against out-of-state college costs
+
+rownames(AveIncome2018NoDC) = seq(length=nrow(AveIncome2018NoDC))
+#Renumbers rows properly
+
+colnames(AveIncome2018NoWyoming)[2] ="Income"
+#Renames column "2018" to "Income"
+colnames(AveIncome2018)[2] ="Income"
+#Renames column "2018" to "Income"
+colnames(AveIncome2018NoDC)[2] ="Income"
+#Renames column "2018" to "Income"
+
+AveIncome2018NoWyoming$Income <- as.numeric(gsub(",","", AveIncome2018NoWyoming$Income))
+#Removes comma from number and turns it into double type
+AveIncome2018$Income <- as.numeric(gsub(",","", AveIncome2018$Income))
+#Removes comma from number and turns it into double type
+AveIncome2018NoDC$Income <- as.numeric(gsub(",","", AveIncome2018NoDC$Income))
+#Removes comma from number and turns it into double type
+
+AveIncome2018NoWyoming
+AveIncome2018
+AveIncome2018NoDC
+mean(AveIncome2018$Income)
+sd(AveIncome2018$Income)
+```
+
+Create new college data table with fees/tuition and room/board combined
+```{r}
+AveCost2018 <- data.frame(matrix(ncol = 3, nrow = 0))
+#Creates new empty data frame with three columns
+colnames(AveCost2018) <- c('State', 'Type', 'Cost')
+#Names the columns
+for(i in 1:nrow(AveTuition2018)) {
+  if (i %% 2 == 1) {
+    AveCost2018[nrow(AveCost2018) + 1,] <- list(AveTuition2018[i,2], AveTuition2018[i,3], strtoi(AveTuition2018[i,6], base = 0L) + strtoi(AveTuition2018[i + 1,6], base = 0L))
+  }
+}
+#Loops through AveTuition2018 to create a new data frame with removed columns that are unnecessary and adds a new column for the total cost of college  
+```
+
+Create three new college data tables for private, out-of-state, and in-state cost
+```{r}
+AveCostPrivate2018 <- filter(AveCost2018, Type %in% c("Private"))
+#Filters for only private cost
+
+AveCostIn2018 <- filter(AveCost2018, Type %in% c("Public In-State"))
+#Filters for only in-state cost
+
+AveCostOut2018 <- filter(AveCost2018, Type %in% c("Public Out-of-State"))
+#Filters for only out-of-state cost
+
+AveCostPrivate2018 <- AveCostPrivate2018[,-2]
+#Removes type column since they are all the same type now
+
+AveCostIn2018 <- AveCostIn2018[,-2]
+#Removes type column since they are all the same type now
+
+AveCostOut2018 <- AveCostOut2018[,-2]
+#Removes type column since they are all the same type now
+
+AveCostPrivate2018
+AveCostIn2018
+AveCostOut2018
+mean(AveCostPrivate2018$Cost)
+sd(AveCostPrivate2018$Cost)
+mean(AveCostIn2018$Cost)
+sd(AveCostIn2018$Cost)
+mean(AveCostOut2018$Cost)
+sd(AveCostOut2018$Cost)
+```
+Create plots comparing average annual income and cost of college for each state
+```{r}
+plot(AveIncome2018NoWyoming$Income, AveCostPrivate2018$Cost, main="Private Colleges", xlab="Average Annual Income (USD)", ylab="Private College Cost (USD)")
+plot(AveIncome2018$Income, AveCostIn2018$Cost, main="In-State Colleges", xlab="Average Annual Income (USD)", ylab="In-State College Cost (USD)")
+plot(AveIncome2018NoDC$Income, AveCostOut2018$Cost, main="Out-of-State Colleges", xlab="Average Annual Income (USD)", ylab="Out-of-State College Cost (USD)")
+```
+Create linear models for the above relationships
+```{r}
+print("Private Colleges")
+private <- lm(AveCostPrivate2018$Cost~AveIncome2018NoWyoming$Income)
+summary(private)
+cor(AveIncome2018NoWyoming$Income, AveCostPrivate2018$Cost)
+
+print("In-State Colleges")
+inState <- lm(AveCostIn2018$Cost~AveIncome2018$Income)
+summary(inState)
+cor(AveIncome2018$Income, AveCostIn2018$Cost)
+
+print("Out-of-State Colleges")
+outState <- lm(AveCostOut2018$Cost~AveIncome2018NoDC$Income)
+summary(outState)
+cor(AveIncome2018NoDC$Income, AveCostOut2018$Cost)
+```
+Add regression line to plots comparing average annual income and cost of college for each state
+```{r}
+plot(AveIncome2018NoWyoming$Income, AveCostPrivate2018$Cost, main="Private Colleges", xlab="Average Annual Income (USD)", ylab="Private College Cost (USD)")
+abline(private, col = "blue")
+plot(AveIncome2018$Income, AveCostIn2018$Cost, main="In-State Colleges", xlab="Average Annual Income (USD)", ylab="In-State College Cost (USD)")
+abline(inState, col = "blue")
+plot(AveIncome2018NoDC$Income, AveCostOut2018$Cost, main="Out-of-State Colleges", xlab="Average Annual Income (USD)", ylab="Out-of-State College Cost (USD)")
+abline(outState, col = "blue")
+```
+
