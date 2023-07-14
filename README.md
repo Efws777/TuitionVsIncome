@@ -1,7 +1,7 @@
 **Average Cost of Tuition Compared to Average Income** 
-Adrian Martinez 
-Evan Shields
-April 11, 2023
+<br>Adrian Martinez 
+<br>Evan Shields
+<br>April 11, 2023
 
 
 **Introduction**
