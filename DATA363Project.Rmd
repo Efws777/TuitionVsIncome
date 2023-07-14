@@ -1,5 +1,5 @@
 ---
-title: "DATA363 Project"
+title: "Correlation Between Average Cost to Attend College and Median Income in the United States"
 output: html_document
 date: "2023-03-12"
 ---
