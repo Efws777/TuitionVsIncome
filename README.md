@@ -1,4 +1,4 @@
-# Average Cost of Tuition Compared to Average Income 
+# Correlation between Average Cost to Attend College and Median Income in the United States
 <br>Adrian Martinez 
 <br>Evan Shields
 <br>April 11, 2023<br><br>
