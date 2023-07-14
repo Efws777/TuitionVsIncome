@@ -1,7 +1,7 @@
 **Average Cost of Tuition Compared to Average Income** 
 <br>Adrian Martinez 
 <br>Evan Shields
-<br>April 11, 2023<br>
+<br>April 11, 2023<br><br>
 
 **Introduction**<br>
 After completing high school, many students seek higher education to further their knowledge in specific areas to achieve a desired career. However, the cost of higher education varies in different states in the US, with some states having higher tuition rates than that of other states. Similar to tuition rates, some states have a higher average household income than other states. 
